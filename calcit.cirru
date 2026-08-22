@@ -12,11 +12,11 @@
           :code $ quote
             defcomp comp-container (store)
               let
-                  states $ :states store
-                  cursor $ :cursor states
-                  state $ either (:data states)
+                  states $ field store :states
+                  cursor $ field states :cursor
+                  state $ either (field states :data)
                     {} $ :tab :portal
-                  tab $ :tab state
+                  tab $ field state :tab
                   scaled 0.01
                 scene ({})
                   group
@@ -29,6 +29,12 @@
                       :position $ [] 20 40 50
                     point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
                       :position $ [] 0 60 0
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |field $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn field (value key)
+              option:unwrap-or (get value key) nil
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
@@ -51,8 +57,8 @@
                   th $ &* t const-2PI
                 rotate-yz $ v-scale
                   &v+ c0 $ &v+
-                    v-scale vx $ js/Math.cos th
-                    v-scale vy $ js/Math.sin th
+                    v-scale vx $ js-number (js/Math.cos th)
+                    v-scale vy $ js-number (js/Math.sin th)
                   , scale
           :examples $ []
           :schema $ :: 'Dynamic
@@ -60,8 +66,8 @@
           :code $ quote
             defcomp comp-hopf (states)
               let
-                  cursor $ :cursor states
-                  state $ or (:data states)
+                  cursor $ field states :cursor
+                  state $ or (field states :data)
                     {}
                       :from $ [] 0 0
                       :r0 1
@@ -70,14 +76,16 @@
                       :scale 10
                       :layers 1
                       :spiral? false
-                  size $ js/Math.ceil (:size state)
-                  layers $ js/Math.ceil (:layers state)
-                  r0 $ :r0 state
-                  d-r $ :delta-r state
-                  center $ :from state
+                  size $ js-number
+                    js/Math.ceil $ field state :size
+                  layers $ js-number
+                    js/Math.ceil $ field state :layers
+                  r0 $ field state :r0
+                  d-r $ field state :delta-r
+                  center $ field state :from
                   th-step $ / (* 2 &PI) size
-                  scale $ :scale state
-                  spiral? $ :spiral? state
+                  scale $ field state :scale
+                  spiral? $ field state :spiral?
                 group ({})
                   point-light $ {} (:color 0xffffff) (:intensity 10) (:distance 600)
                     :position $ [] 0 10 0
@@ -85,44 +93,44 @@
                     {} $ :position ([] 0 8 0)
                     comp-value-2d
                       {} (:label |From) (:speed 2) (:color 0xffff55) (:show-text? true) (:fract-length 1)
-                        :value $ :from state
+                        :value $ field state :from
                         :position $ [] 0 10 0
                       fn (v d!)
                         d! cursor $ assoc state :from v
                     comp-value
                       {} (:speed 2) (:color 0x5555ff) (:label |r0) (:show-text? true) (:fract-length 0)
                         :position $ [] 34 0 0
-                        :value $ :r0 state
+                        :value $ field state :r0
                       fn (v d!)
                         d! cursor $ assoc state :r0 v
                     comp-value
                       {} (:speed 4) (:color 0xaaaaff) (:label |size) (:show-text? true) (:fract-length 0)
                         :position $ [] 40 0 0
-                        :value $ :size state
+                        :value $ field state :size
                       fn (v d!)
                         d! cursor $ assoc state :size v
                     comp-value
                       {} (:speed 4) (:color 0x5555ff) (:label |scale) (:show-text? true) (:fract-length 0)
                         :position $ [] 44 0 0
-                        :value $ :scale state
+                        :value $ field state :scale
                       fn (v d!)
                         d! cursor $ assoc state :scale v
                     comp-value
                       {} (:speed 4) (:color 0x55ffaa) (:label |delta-r) (:show-text? true) (:fract-length 0)
                         :position $ [] 44 -4 0
-                        :value $ :delta-r state
+                        :value $ field state :delta-r
                       fn (v d!)
                         d! cursor $ assoc state :delta-r v
                     comp-value
                       {} (:speed 4) (:color 0x5555ff) (:label |layers) (:show-text? true) (:fract-length 0)
                         :position $ [] 48 -4 0
-                        :value $ :layers state
+                        :value $ field state :layers
                       fn (v d!)
                         d! cursor $ assoc state :layers v
                     comp-switch
                       {} (:color 0xaaffdd) (:label |spiral?) (:show-text? true) (:fract-length 0)
                         :position $ [] 48 8 0
-                        :value $ :spiral? state
+                        :value $ field state :spiral?
                       fn (v d!)
                         d! cursor $ assoc state :spiral? v
                   sphere $ {} (:radius 0.4) (:emissive 0xffffff) (:metalness 0.8) (:color 0x00ff00) (:emissiveIntensity 1) (:roughness 0)
@@ -193,6 +201,12 @@
             def const-2PI $ &* 2 &PI
           :examples $ []
           :schema $ :: 'Dynamic
+        |field $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn field (value key)
+              option:unwrap-or (get value key) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
         |get-angle $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn get-angle (x y)
@@ -200,10 +214,16 @@
                   > x 0
                   js/Math.atan $ / y x
                 (< x 0)
-                  + &PI $ js/Math.atan (/ y x)
+                  + &PI $ js-number
+                    js/Math.atan $ / y x
                 (> y 0) (* 0.5 &PI)
                 (< y 0) (* -0.5 &PI)
                 true 0
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |js-number $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn js-number (value) (unsafe-coerce value Number)
           :examples $ []
           :schema $ :: 'Dynamic
         |layer-color $ %{} 'CodeEntry (:doc |)
@@ -221,8 +241,8 @@
                   vy $ &list:nth factor 2
                   scale $ &list:nth factor 3
                   th $ &* t const-2PI
-                  cos-v $ js/Math.cos th
-                  sin-v $ js/Math.sin th
+                  cos-v $ js-number (js/Math.cos th)
+                  sin-v $ js-number (js/Math.sin th)
                 []
                   &* scale $ -> (&list:nth c0 0)
                     &+ $ &* cos-v (&list:nth vx 0)
@@ -274,12 +294,24 @@
                   reset! *store store
           :examples $ []
           :schema $ :: 'Dynamic
+        |ffi-object $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn ffi-object (value) (unsafe-coerce value JsObject)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |js-number $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn js-number (value) (unsafe-coerce value Number)
+          :examples $ []
+          :schema $ :: 'Dynamic
         |main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn main! () (load-console-formatter!) (inject-tree-methods)
               set-perspective-camera! $ {} (:fov 40) (:near 0.1) (:far 100)
                 :position $ [] 0 1 1
-                :aspect $ / js/window.innerWidth js/window.innerHeight
+                :aspect $ /
+                  js-number $ .-innerWidth (ffi-object js/window)
+                  js-number $ .-innerHeight (ffi-object js/window)
               let
                   canvas-el $ js/document.querySelector |canvas
                 init-renderer! canvas-el $ {} (:background 0x110022)
