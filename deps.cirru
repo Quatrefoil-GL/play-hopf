@@ -1,5 +1,5 @@
 
-{} (:calcit-version |0.13.29)
+{} (:calcit-version |0.14.16)
   :dependencies $ {} (|Quamolit/touch-control |main)
     |Quatrefoil-GL/quatrefoil |main
     |Respo/alerts.calcit |main
