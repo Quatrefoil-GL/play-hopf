@@ -1,12 +1,7 @@
 
-{} (:calcit-version |0.13.29)
-  :dependencies $ {} (|Quamolit/touch-control |main)
-    |Quatrefoil-GL/quatrefoil |main
-    |Respo/alerts.calcit |main
-    |Respo/respo-markdown.calcit |main
-    |Respo/respo-ui.calcit |main
-    |Respo/respo.calcit |main
-    |calcit-lang/lilac |main
-    |calcit-lang/memof |main
-    |calcit-lang/quaternion |main
-    |mvc-works/pointed-prompt |main
+{} (:calcit-version |0.14.17) (:version |0.0.4)
+  :dependencies $ {} (|Quamolit/touch-control |0.0.21)
+    |Quatrefoil-GL/quatrefoil |0.1.2
+    |calcit-lang/js-ffi |0.1.17
+    |calcit-lang/quaternion |0.2.6
+    |mvc-works/pointed-prompt |0.0.11
