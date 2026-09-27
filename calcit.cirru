@@ -151,10 +151,7 @@
                     let
                         r $ + r0 $ * idx d-r
                       tube $ {} (:points-fn lowed-circle-fn)
-                        :factor $ %{} HopfCircle (:center center3)
-                          :vx $ [] r 0 0
-                          :vy $ [] 0 r 0
-                          :scale scale
+                        :factor $ HopfCircle :center center3 :vx ([] r 0 0) :vy ([] 0 r 0) :scale scale
                         :radius 0.04
                         :tubular-segments 80
                         :radial-segments 8
@@ -200,7 +197,7 @@
                               * w $ sin th2
                               , h
                           tube $ {} (:points-fn lowed-circle-fn)
-                            :factor $ %{} HopfCircle (:center rail-center) (:vx vx) (:vy vy) (:scale scale)
+                            :factor $ HopfCircle :center rail-center :vx vx :vy vy :scale scale
                             :radius 0.08
                             :tubular-segments $ if
                               > (* scale r) 10
