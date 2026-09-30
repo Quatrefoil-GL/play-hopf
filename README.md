@@ -6,6 +6,12 @@ Play Hopf Fiberation
 
 Demo http://repo.quamolit.org/quatrefoil-workflow/
 
+The existing web-entry deployment remains at its current rsync path. GitHub
+Actions also uploads the frontend `dist/` assets to
+`https://cos-sh.tiye.me/Quatrefoil-GL/play-hopf/`, with pull-request previews
+under `/pr/`. Vite writes JS, CSS, and manifest URLs against that CDN base;
+the COS action verifies the uploaded files through their public URLs.
+
 ### About
 
 Using similar rules from Hopf https://www.youtube.com/watch?v=AKotMPGFJYk but not exactly use it's equations. It's hard to solve equations. So this is just a simplified verison:
