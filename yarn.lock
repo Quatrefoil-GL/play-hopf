@@ -221,15 +221,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@quatrefoil/meshline@npm:^1.3.0-a1":
-  version: 1.3.0-a1
-  resolution: "@quatrefoil/meshline@npm:1.3.0-a1"
-  peerDependencies:
-    three: ^0.138.3
-  checksum: 10c0/b17f0d91ebea9b3e73844dfb752af96eb2b996be8c56c8cfe7bf9c74a1e623a663c2ef832880e79b43cd39372cf189f412a1eec5e3c8e1da4a6c2f1b21dd2dcc
-  languageName: node
-  linkType: hard
-
 "@quatrefoil/utils@npm:^0.0.3":
   version: 0.0.3
   resolution: "@quatrefoil/utils@npm:0.0.3"
@@ -752,7 +743,6 @@ __metadata:
     "@calcit/procs": "npm:0.27.0"
     "@calcit/std": "npm:^0.0.3"
     "@quamolit/touch-control": "npm:^0.0.13"
-    "@quatrefoil/meshline": "npm:^1.3.0-a1"
     "@quatrefoil/utils": "npm:^0.0.3"
     bottom-tip: "npm:^0.1.5"
     hsluv: "npm:^1.0.1"
