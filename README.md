@@ -9,8 +9,13 @@ Demo http://repo.quamolit.org/quatrefoil-workflow/
 The existing web-entry deployment remains at its current rsync path. GitHub
 Actions also uploads the frontend `dist/` assets to
 `https://cos-sh.tiye.me/Quatrefoil-GL/play-hopf/`, with pull-request previews
-under `/pr/`. Vite writes JS, CSS, and manifest URLs against that CDN base;
+under `/pr/<number>/<run>/<attempt>/`. Vite writes JS, CSS, and manifest URLs against that CDN base;
 the COS action verifies the uploaded files through their public URLs.
+
+COS Action 使用正式 v1.2.0，唯一上传校验为 `public-base-url` 内置 verify；不增加额外脚本。
+上传按事件/分支排队，job/上传分别限制为 15/10 分钟。原生产前缀与 rsync 路径不变，
+保留 strict Caps 和类型门禁；本轮仍为 Calcit/procs 0.27.0，不代表完成 0.28 类型迁移。
+移除未使用的旧 alpha 包 `@quatrefoil/meshline`；实际发布模块已使用正式 `meshline`。
 
 ### About
 
