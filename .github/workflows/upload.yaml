@@ -38,13 +38,17 @@ jobs:
 
     - name: Verify dependencies and strict types
       run: |
+        set -euo pipefail
+        test ! -e compact.cirru
+        test ! -e package.cirru
         caps --strict --ci
         yarn install --immutable
         caps verify --toolchain
         calcit edit format
         git diff --exit-code -- calcit.cirru
-        calcit --check-only
-        calcit analyze dynamic-methods
+        calcit --check-only --all-defs --format json
+        calcit fix --workflow strict --verify --format json | jq '{validation:.data.validation,suggestions:.data.suggestions,diagnostics:.diagnostics}'
+        calcit analyze weak-types --only dynamic-method --format json
 
     - name: Select CDN asset path
       id: asset-path

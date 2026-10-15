@@ -3,7 +3,7 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |app
   :entries $ {} $ :default
-    {} (:description |) (:init-fn 'app.main/main!) (:mode :native) (:reload-fn 'app.main/reload!)
+    {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |touch-control/ |pointed-prompt/ |quatrefoil/ |quaternion/ |js-ffi/
       :type-slots $ {}
@@ -13,11 +13,13 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ field store :states
-                cursor $ field states :cursor
-                state $ either (field states :data)
-                  {} $ :tab :portal
-                tab $ field state :tab
+                states $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field store :states) (:: 'Map 'Tag 'Dynamic)
+                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor) (:: 'List 'Tag)
+                state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
+                  either (field states :data)
+                    {} $ :tab :portal
+                  :: 'Map 'Tag 'Dynamic
+                tab $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field state :tab) 'Tag
                 scaled 0.01
               scene ({})
                 group
@@ -25,18 +27,19 @@
                     :scale $ [] scaled scaled scaled
                     :position $ [] -0.4 1 -0.4
                   ambient-light $ {} $ :color 0x666666
-                  comp-hopf $ >> states :hopf
+                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf) (:: 'Map 'Tag 'Dynamic)
                   point-light $ {} (:color 0xffffff) (:intensity 1.4) (:distance 200)
                     :position $ [] 20 40 50
                   point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
                     :position $ [] 0 60 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'quatrefoil.schema/Component)
             :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
         'field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn field (value key)
-            option:unwrap-or (get value key) nil
+            match (get value key)
+              (:some found) found
+              (:none) nil
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag
@@ -57,38 +60,39 @@
           :examples $ []
           :schema $ :: 'Struct
         'as-bool $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn as-bool (value) (unsafe-coerce value Bool)
+          :code $ quote $ defn as-bool (value)
+            quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Bool
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
         'as-number $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn as-number (value) (unsafe-coerce value Number)
+          :code $ quote $ defn as-number (value)
+            quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Number
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
         'as-number-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number-list (value)
-            unsafe-coerce value $ :: 'List 'Number
+            quatrefoil.util.core/require-decoded $ try-decode-map-as value $ :: 'List 'Number
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
             :return $ :: 'List 'Number
         'comp-hopf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-hopf (states)
             let
-                cursor $ field states :cursor
-                state $ or (field states :data)
-                  {}
-                    :from $ [] 0 0
-                    :r0 1
-                    :delta-r 0
-                    :size 10
-                    :scale 10
-                    :layers 1
-                    :spiral? false
+                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor) (:: 'List 'Tag)
+                state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
+                  or (field states :data)
+                    {}
+                      :from $ [] 0 0
+                      :r0 1
+                      :delta-r 0
+                      :size 10
+                      :scale 10
+                      :layers 1
+                      :spiral? false
+                  :: 'Map 'Tag 'Dynamic
                 size $ ceil $ as-number (field state :size)
                 layers $ ceil $ as-number (field state :layers)
                 r0 $ as-number $ field state :r0
@@ -147,7 +151,7 @@
                   map $ fn (idx)
                     hint-fn $ {}
                       :args $ [] 'Number
-                      :return 'Dynamic
+                      :return 'quatrefoil.schema/Shape
                     let
                         r $ + r0 $ * idx d-r
                       tube $ {} (:points-fn lowed-circle-fn)
@@ -161,12 +165,12 @@
                   map $ fn (layer-idx)
                     hint-fn $ {}
                       :args $ [] 'Number
-                      :return 'Dynamic
+                      :return 'quatrefoil.schema/Shape
                     group ({}) & $ -> size (range)
                       map $ fn (idx)
                         hint-fn $ {}
                           :args $ [] 'Number
-                          :return 'Dynamic
+                          :return 'quatrefoil.schema/Shape
                         let
                             r1 $ + r0 (* d-r layer-idx)
                               if spiral?
@@ -209,16 +213,17 @@
                               :opacity 1
                               :transparent true
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+          :schema $ :: 'Fn $ {} (:return 'quatrefoil.schema/Component)
             :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
         'const-2PI $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def const-2PI (&* 2 &PI)
           :examples $ []
           :schema $ :: 'Number
         'field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn field (value key)
-            option:unwrap-or (get value key) nil
+            match (get value key)
+              (:some found) found
+              (:none) nil
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag
@@ -237,13 +242,13 @@
             :args $ [] 'Number 'Number
         'layer-color $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn layer-color (idx)
-            case-default idx 0xaaaaff (0 0xaaaa00) (1 0x685aff) (2 0x00ff85) (3 0x00fff9) (4 0xff66aa)
+            match idx (0 0xaaaa00) (1 0x685aff) (2 0x00ff85) (3 0x00fff9) (4 0xff66aa) (_ 0xaaaaff)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Number
         'list-number-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn list-number-at (xs idx)
-            option:unwrap $ nth xs idx
+            (nth xs idx) .unwrap
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] (:: 'List 'Number) 'Number
@@ -273,7 +278,7 @@
             :return $ :: 'List 'Number
         'math-atan $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-atan (x)
-            unsafe-coerce (js/Math.atan x) Number
+            quatrefoil.util.core/require-decoded $ try-decode-map-as (js/Math.atan x) 'Number
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Number
@@ -288,7 +293,7 @@
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *store
+          :code $ quote $ defref *store
             {}
               :tasks $ {} $ 100
                 {} (:id 100) (:text "|Initial task") (:done? false)
@@ -299,7 +304,7 @@
           :code $ quote $ deftrait MobileDetectHost
             .mobile? $ :: 'Fn $ {}
               :args $ [] 'app.main/MobileDetectHost
-              :return 'Bool
+              :return 'Dynamic
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :mobile? |mobile
@@ -309,9 +314,12 @@
             if (list? op)
               recur :states $ [] op op-data
               let
-                  store $ updater @*store op op-data
+                  store $ updater @*store
+                    quatrefoil.util.core/require-decoded $ try-decode-map-as op 'Tag
+                    , op-data
                 ; js/console.log |Dispatch: op op-data store
                 reset! *store store
+                , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic 'Dynamic
@@ -322,10 +330,12 @@
               :position $ [] 0 1 1
               :aspect $ / (viewport-width) (viewport-height)
             let
-                canvas-el $ option:unwrap $ query-selector |canvas
+                canvas-el $
+                  query-selector |canvas
+                  , .unwrap
               init-renderer! canvas-el $ {} $ :background 0x110022
             render-app!
-            add-watch *store :changes $ fn (store prev) (render-app!)
+            add-watch! *store :changes $ fn (store prev) (render-app!)
             set! js/window.onkeydown handle-key-event
             render-control!
             handle-control-events
@@ -338,22 +348,23 @@
         'mobile? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mobile? ()
             let
-                detector $ unsafe-coerce (new mobile-detect js/window.navigator.userAgent) app.main/MobileDetectHost
-              detector .mobile?
+                detector $ js-cast (new mobile-detect js/window.navigator.userAgent) 'app.main/MobileDetectHost
+              non-nil? $ detector .mobile?
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ []
             :features $ #{} :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
-            if (some? build-errors) (hud! |error build-errors)
+            if (non-nil? build-errors) (hud! |error build-errors)
               do (hud! |ok~ nil) (clear-cache!)
                 when (mobile?) (clear-control-loop!) (handle-control-events)
-                remove-watch *store :changes
-                add-watch *store :changes $ fn (store prev) (render-app!)
+                remove-watch! *store :changes
+                add-watch! *store :changes $ fn (store prev) (render-app!)
                 render-app!
                 set! js/window.onkeydown handle-key-event
                 println |Code-updated.
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -370,9 +381,9 @@
             |@quatrefoil/utils :refer $ inject-tree-methods
             quatrefoil.core :refer $ render-canvas! init-controls! *global-tree clear-cache! init-renderer! handle-key-event handle-control-events
             app.comp.container :refer $ comp-container
-            app.updater :refer $ [] updater
+            app.updater :refer $ updater
             |three :as THREE
-            touch-control.core :refer $ render-control! control-states start-control-loop! clear-control-loop!
+            touch-control.core :refer $ render-control! start-control-loop! clear-control-loop!
             |mobile-detect :default mobile-detect
             |bottom-tip :default hud!
             |./calcit.build-errors :default build-errors
@@ -382,10 +393,12 @@
       :defs $ {} $ 'updater
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op op-data)
-            case-default op store $ :states $ update-states store op-data
+            match op
+              :states $ update-states store op-data
+              _ store
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Dynamic 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag 'Dynamic
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
