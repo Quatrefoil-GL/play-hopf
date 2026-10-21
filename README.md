@@ -38,7 +38,7 @@ immutable install 通过。这是旧配对的记录，不代表正式 0.30.1 已
 消失，关闭恢复，无浏览器异常。隔离 diff 只替换开关球体，场景节点与灯光保留；
 不含 Hopf 公式的 Lambert 材质最小场景也复现，而 Basic 材质不复现。
 Three 0.166.1 / 0.168.0 对照均复现，根因仍待定位，未添加强制重建/清缓存绕过。
-见 [Quatrefoil #64](https://github.com/Quatrefoil-GL/quatrefoil/issues/64)。本轮工具链升级不宣称已经修复此问题；VR、多点触控和完整视觉回归未完成。PR CI 成功也不能替代这个运行时门禁。
+见 [Quatrefoil #64](https://github.com/Quatrefoil-GL/quatrefoil/issues/64)。本轮已对照实际 CI 原始构建：0.30.1 / Quatrefoil 0.1.9 与旧 main 的 0.30.0 / 0.1.8，在同一浏览器环境实际打开 spiral 后均保留其他几何、控制台无错误。因为旧图也暂未复现，不能归因于本轮升级或宣布 #64 已修复；该 issue 保持开放。默认 delta-r 为 0，按现有公式切换 spiral 不应改变曲线。尝试鼠标拖动数值球没有可观察变化，这些控件的完整控制器/触控验收、VR 与跨 GPU 视觉回归仍未完成，不把首次渲染和 CI 绿灯冒充全部交互通过。
 
 ### About
 
