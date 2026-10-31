@@ -14,10 +14,29 @@ the COS action verifies the uploaded files through their public URLs.
 
 COS Action 使用正式 v1.2.0，唯一上传校验为 `public-base-url` 内置 verify；不增加额外脚本。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟。原生产前缀与 rsync 路径不变，
-保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.30.1、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
+保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.32.1、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
 移除未使用的旧 alpha 包 `@quatrefoil/meshline`；实际发布模块已使用正式 `meshline`。
 
-### 迁移状态与已知限制
+### 本轮 0.32.1 使用者影响与验收
+
+请配对升级 CLI/procs 0.32.1、重新安装模块并刷新。严格 Caps 使用已发布 Quatrefoil 0.2.0、
+Touch Control 0.0.35、JS-FFI 0.2.9、Quaternion 0.2.19、Pointed Prompt 0.0.24 五个模块，
+不依赖本地候选或绕过版本冲突。Three 仍是原 0.166.1；本次应用源码只经官方事务迁移旧类型形式，
+原公式、相机、材质、采样、回调、HUD 与应用版本保持。npm 等待期明确为维护者授权的一小时。
+三处 Action SHA 改为经核对对应原 commit 的精确正式 tag，按维护者选择接受 tag 可移动风险；
+原权限、门禁、COS 内置校验和生产路径/条件不变。
+
+228 个定义、22 个公开项目定义、完整 strict、不可变安装、工具链配对与构建通过；
+deprecated call / dynamic method 均为 0。项目没有原附着测试，不把空测试选择称作测试套件通过。
+实际 IAB 页面 spiral 开关从暗变亮再变暗，受光曲线和控制点始终可见；a 键相机旋转及刷新恢复
+通过，浏览器无警告或错误。没有清缓存或强制重建场景绕过旧问题。
+
+这只支持当前环境默认场景暂未复现 #64，**不证明本轮升级修复旧问题**；此前旧、新图在同环境
+均暂未复现，所以上游 [Quatrefoil #64](https://github.com/Quatrefoil-GL/quatrefoil/issues/64) 保持开放。
+默认 delta-r=0，开关反馈不证明非零螺旋参数正确。实际组合控件、VR/gamepad、多点触控、
+原 Lambert 最小场景和跨 GPU 尚未复验；不把 CI 成功当作这些行为均已通过，不合并或部署生产。
+
+### 此前 0.30.1 迁移状态与已知限制
 
 使用者影响：本轮同步正式 Calcit CLI / JS runtime 0.30.1 与已发布模块图：Quatrefoil 0.1.9、Touch Control 0.0.31、js-ffi 0.2.3、
 Quaternion 0.2.16、Pointed Prompt 0.0.19。Quatrefoil 0.1.9 的 `update-states` 会拒绝缺失的第二项 payload，显式 nil 仍保留；当前派发继续传入 cursor 与 payload 两项，不为绕过依赖冲突而放宽 Caps。保持原有 Three 0.166.1、相机、场景缩放、
