@@ -33,16 +33,14 @@
                   point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
                     :position $ [] 0 60 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quatrefoil.schema/Component)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> quatrefoil.schema/Component)
         'field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn field (value key)
             match (get value key)
               (:some found) found
               (:none) nil
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag
+          :schema $ quote $ Fn (Map Tag Dynamic) Tag (-> Dynamic)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -53,31 +51,28 @@
       :defs $ {}
         'HopfCircle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct HopfCircle
-            :center $ :: 'List 'Number
-            :vx $ :: 'List 'Number
-            :vy $ :: 'List 'Number
+            :center $ quote $ List Number
+            :vx $ quote $ List Number
+            :vy $ quote $ List Number
             :scale 'Number
           :examples $ []
-          :schema $ :: 'Struct
+          :schema $ quote Struct
         'as-bool $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-bool (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Bool
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> Bool)
         'as-number $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> Number)
         'as-number-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number-list (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value $ :: 'List 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn Dynamic
+            -> $ List Number
         'comp-hopf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-hopf (states)
             let
@@ -149,9 +144,7 @@
                   :material $ {} (:kind :mesh-basic) (:color 0xffffff) (:opacity 0.3) (:transparent true)
                 group ({}) & $ -> layers (range)
                   map $ fn (idx)
-                    hint-fn $ {}
-                      :args $ [] 'Number
-                      :return 'quatrefoil.schema/Shape
+                    hint-fn $ Fn Number $ -> quatrefoil.schema/Shape
                     let
                         r $ + r0 $ * idx d-r
                       tube $ {} (:points-fn lowed-circle-fn)
@@ -163,14 +156,10 @@
                         :material $ {} (:kind :mesh-standard) (:color 0x7777ff) (:opacity 0.4) (:transparent true)
                 group ({}) & $ -> layers (range)
                   map $ fn (layer-idx)
-                    hint-fn $ {}
-                      :args $ [] 'Number
-                      :return 'quatrefoil.schema/Shape
+                    hint-fn $ Fn Number $ -> quatrefoil.schema/Shape
                     group ({}) & $ -> size (range)
                       map $ fn (idx)
-                        hint-fn $ {}
-                          :args $ [] 'Number
-                          :return 'quatrefoil.schema/Shape
+                        hint-fn $ Fn Number $ -> quatrefoil.schema/Shape
                         let
                             r1 $ + r0 (* d-r layer-idx)
                               if spiral?
@@ -213,20 +202,18 @@
                               :opacity 1
                               :transparent true
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quatrefoil.schema/Component)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> quatrefoil.schema/Component)
         'const-2PI $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def const-2PI (&* 2 &PI)
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
         'field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn field (value key)
             match (get value key)
               (:some found) found
               (:none) nil
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag
+          :schema $ quote $ Fn (Map Tag Dynamic) Tag (-> Dynamic)
         'get-angle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-angle (x y)
             cond
@@ -238,20 +225,17 @@
               (< y 0) (* -0.5 &PI)
               true 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
+          :schema $ quote $ Fn Number Number (-> Number)
         'layer-color $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn layer-color (idx)
             match idx (0 0xaaaa00) (1 0x685aff) (2 0x00ff85) (3 0x00fff9) (4 0xff66aa) (_ 0xaaaaff)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number (-> Number)
         'list-number-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn list-number-at (xs idx)
             (nth xs idx) .unwrap
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] (:: 'List 'Number) 'Number
+          :schema $ quote $ Fn (List Number) Number (-> Number)
         'lowed-circle-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn lowed-circle-fn (t factor)
             let
@@ -273,16 +257,13 @@
                   * cos-v $ list-number-at vx 1
                   * sin-v $ list-number-at vy 1
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Number 'app.comp.hopf/HopfCircle
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn Number app.comp.hopf/HopfCircle
+            -> $ List Number
         'math-atan $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-atan (x)
             quatrefoil.util.core/require-decoded $ try-decode-map-as (js/Math.atan x) 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.hopf
           :require
@@ -299,16 +280,14 @@
                 {} (:id 100) (:text "|Initial task") (:done? false)
               :states $ {} $ :cursor ([])
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'MobileDetectHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait MobileDetectHost
-            .mobile? $ :: 'Fn $ {}
-              :args $ [] 'app.main/MobileDetectHost
-              :return 'Dynamic
+            .mobile? $ quote $ Fn app.main/MobileDetectHost (-> Dynamic)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :mobile? |mobile
-          :schema $ :: 'Trait
+          :schema $ quote Trait
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op op-data)
             if (list? op)
@@ -321,9 +300,7 @@
                 reset! *store store
                 , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic Dynamic (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!) (inject-tree-methods)
             set-perspective-camera! $ {} (:fov 40) (:near 0.1) (:far 100)
@@ -342,18 +319,14 @@
             init-controls!
             println |App-started!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'mobile? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mobile? ()
             let
                 detector $ js-cast (new mobile-detect js/window.navigator.userAgent) 'app.main/MobileDetectHost
               non-nil? $ detector .mobile?
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Bool) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (non-nil? build-errors) (hud! |error build-errors)
@@ -366,15 +339,12 @@
                 println |Code-updated.
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! () (; println "|Render app:")
             render-canvas! (comp-container @*store) dispatch!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -397,9 +367,8 @@
               :states $ update-states store op-data
               _ store
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Tag Dynamic
+            -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ quatrefoil.cursor :refer $ update-states
