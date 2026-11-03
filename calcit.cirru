@@ -13,12 +13,14 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field store :states) (:: 'Map 'Tag 'Dynamic)
-                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor) (:: 'List 'Tag)
+                states $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field store :states)
+                  quote $ Map Tag Dynamic
+                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor)
+                  quote $ List Tag
                 state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   either (field states :data)
                     {} $ :tab :portal
-                  :: 'Map 'Tag 'Dynamic
+                  quote $ Map Tag Dynamic
                 tab $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field state :tab) 'Tag
                 scaled 0.01
               scene ({})
@@ -27,7 +29,8 @@
                     :scale $ [] scaled scaled scaled
                     :position $ [] -0.4 1 -0.4
                   ambient-light $ {} $ :color 0x666666
-                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf) (:: 'Map 'Tag 'Dynamic)
+                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf)
+                    quote $ Map Tag Dynamic
                   point-light $ {} (:color 0xffffff) (:intensity 1.4) (:distance 200)
                     :position $ [] 20 40 50
                   point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
@@ -51,12 +54,12 @@
       :defs $ {}
         'HopfCircle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct HopfCircle
-            :center $ quote $ List Number
-            :vx $ quote $ List Number
-            :vy $ quote $ List Number
-            :scale 'Number
+            :center $ quote $ Tuple Number Number Number
+            :vx $ quote $ Tuple Number Number Number
+            :vy $ quote $ Tuple Number Number Number
+            :scale Number
           :examples $ []
-          :schema $ quote Struct
+          :schema $ quote StructDef
         'as-bool $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-bool (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Bool
@@ -69,14 +72,15 @@
           :schema $ quote $ Fn Dynamic (-> Number)
         'as-number-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number-list (value)
-            quatrefoil.util.core/require-decoded $ try-decode-map-as value $ :: 'List 'Number
+            quatrefoil.util.core/require-decoded $ try-decode-map-as value $ quote (List Number)
           :examples $ []
           :schema $ quote $ Fn Dynamic
             -> $ List Number
         'comp-hopf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-hopf (states)
             let
-                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor) (:: 'List 'Tag)
+                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor)
+                  quote $ List Tag
                 state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   or (field states :data)
                     {}
@@ -87,7 +91,7 @@
                       :scale 10
                       :layers 1
                       :spiral? false
-                  :: 'Map 'Tag 'Dynamic
+                  quote $ Map Tag Dynamic
                 size $ ceil $ as-number (field state :size)
                 layers $ ceil $ as-number (field state :layers)
                 r0 $ as-number $ field state :r0
@@ -95,7 +99,8 @@
                 center $ as-number-list $ field state :from
                 center-x $ list-number-at center 0
                 center-y $ list-number-at center 1
-                center3 $ [] center-x center-y 0
+                center3 $ assert-type ([] center-x center-y 0)
+                  quote $ Tuple Number Number Number
                 th-step $ / (* 2 &PI) size
                 scale $ as-number $ field state :scale
                 spiral? $ as-bool $ field state :spiral?
@@ -174,21 +179,27 @@
                             r $ c-length $ complex len 2
                             vertical-angle $ get-angle 2 len
                             rail-r len
-                            rail-center $ []
-                              * rail-r $ cos th
-                              * rail-r $ sin th
-                              , 0
+                            rail-center $ assert-type
+                              []
+                                * rail-r $ cos th
+                                * rail-r $ sin th
+                                , 0
+                              quote $ Tuple Number Number Number
                             h $ * r $ sin vertical-angle
                             w $ * r $ cos vertical-angle
                             th2 $ + th $ * 0.5 &PI
-                            vx $ []
-                              * r $ cos th
-                              * r $ sin th
-                              , 0
-                            vy $ []
-                              * w $ cos th2
-                              * w $ sin th2
-                              , h
+                            vx $ assert-type
+                              []
+                                * r $ cos th
+                                * r $ sin th
+                                , 0
+                              quote $ Tuple Number Number Number
+                            vy $ assert-type
+                              []
+                                * w $ cos th2
+                                * w $ sin th2
+                                , h
+                              quote $ Tuple Number Number Number
                           tube $ {} (:points-fn lowed-circle-fn)
                             :factor $ HopfCircle :center rail-center :vx vx :vy vy :scale scale
                             :radius 0.08
@@ -258,7 +269,7 @@
                   * sin-v $ list-number-at vy 1
           :examples $ []
           :schema $ quote $ Fn Number app.comp.hopf/HopfCircle
-            -> $ List Number
+            -> $ Tuple Number Number Number
         'math-atan $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-atan (x)
             quatrefoil.util.core/require-decoded $ try-decode-map-as (js/Math.atan x) 'Number
