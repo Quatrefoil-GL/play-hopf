@@ -14,8 +14,27 @@ the COS action verifies the uploaded files through their public URLs.
 
 COS Action 使用正式 v1.2.0，唯一上传校验为 `public-base-url` 内置 verify；不增加额外脚本。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟。原生产前缀与 rsync 路径不变，
-保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.32.1、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
+保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.34.2、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
 移除未使用的旧 alpha 包 `@quatrefoil/meshline`；实际发布模块已使用正式 `meshline`。
+
+### 本轮 0.34.2 候选迁移
+
+使用者需配对 Calcit CLI/procs 0.34.2；HopfCircle 的 center/vx/vy 和圆周采样结果
+现在明确为三个 Number 的 Tuple，手工构造时需提供恰好三个分量。原三维公式、采样密度、
+材质、相机、控制回调、HUD、应用版本和部署路径保持。真实异构 UI 状态仍在原入口检查，
+不以伪 union 或 unsafe 隐藏 Dynamic，不放宽类型门禁。
+
+官方格式迁移之外，对照全部 22 个原定义，只有 HopfCircle 的三个字段和 StructDef 元数据、
+四处三项字面量的类型标注，以及 lowed-circle-fn 返回合同变化。候选已通过全部 228 个定义、
+完整 strict、dynamic-method 检查和前端构建；项目没有原附着测试，不把零选择称作套件通过。
+
+临时 Vite 内存验收通过圆周三个采样点、颜色表，以及实际 Three 默认 11 条管线和非零
+spiral 关闭/开启各 10 条管线：坐标有限，非零 spiral 的几何确实不同。此验收仅为几何数据，
+为模块初始化提供 div 和键盘监听占位；并记录 Vite WebSocket 绑定限制和重复 Three 警告。
+它不证明 DOM 控件交互、WebGL 绘制或旧可见性问题 #64 修复，未合并或部署本应用。
+
+正式 Quatrefoil 0.3.0 / Touch Control 0.0.36 的 Caps 严格安装、不可变安装、工具链配对、
+全部定义、完整 strict、dynamic-method 检查及构建已重新通过；最终 PR CI 仍待远端执行。
 
 ### 本轮 0.32.1 使用者影响与验收
 
