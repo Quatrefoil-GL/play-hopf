@@ -9,19 +9,26 @@
       :type-slots $ {}
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
-      :defs $ {}
-        'comp-container $ %{} 'CodeEntry (:doc |)
+      :defs $ {} $ 'comp-container
+        %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field store :states)
-                  quote $ Map Tag Dynamic
-                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor)
-                  quote $ List Tag
+                states $ quatrefoil.util.core/require-decoded $ try-decode-map-as
+                  .unwrap $ get store :states
+                  Map Tag Dynamic
+                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as
+                  .unwrap $ get states :cursor
+                  List Tag
                 state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
-                  either (field states :data)
-                    {} $ :tab :portal
-                  quote $ Map Tag Dynamic
-                tab $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field state :tab) 'Tag
+                  match (get states :data)
+                    (:some raw)
+                      either raw $ {} $ :tab :portal
+                    (:none)
+                      {} $ :tab :portal
+                  Map Tag Dynamic
+                tab $ quatrefoil.util.core/require-decoded $ try-decode-map-as
+                  .unwrap $ get state :tab
+                  , 'Tag
                 scaled 0.01
               scene ({})
                 group
@@ -29,21 +36,13 @@
                     :scale $ [] scaled scaled scaled
                     :position $ [] -0.4 1 -0.4
                   ambient-light $ {} $ :color 0x666666
-                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf)
-                    quote $ Map Tag Dynamic
+                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf) (Map Tag Dynamic)
                   point-light $ {} (:color 0xffffff) (:intensity 1.4) (:distance 200)
                     :position $ [] 20 40 50
                   point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
                     :position $ [] 0 60 0
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (-> quatrefoil.schema/Component)
-        'field $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn field (value key)
-            match (get value key)
-              (:some found) found
-              (:none) nil
-          :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Tag (-> Dynamic)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -54,9 +53,9 @@
       :defs $ {}
         'HopfCircle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct HopfCircle
-            :center $ quote $ Tuple Number Number Number
-            :vx $ quote $ Tuple Number Number Number
-            :vy $ quote $ Tuple Number Number Number
+            :center $ Tuple Number Number Number
+            :vx $ Tuple Number Number Number
+            :vy $ Tuple Number Number Number
             :scale Number
           :examples $ []
           :schema $ quote StructDef
@@ -72,38 +71,50 @@
           :schema $ quote $ Fn Dynamic (-> Number)
         'as-number-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number-list (value)
-            quatrefoil.util.core/require-decoded $ try-decode-map-as value $ quote (List Number)
+            quatrefoil.util.core/require-decoded $ try-decode-map-as value $ List Number
           :examples $ []
           :schema $ quote $ Fn Dynamic
             -> $ List Number
         'comp-hopf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-hopf (states)
             let
-                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as (field states :cursor)
-                  quote $ List Tag
+                cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as
+                  .unwrap $ get states :cursor
+                  List Tag
                 state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
-                  or (field states :data)
-                    {}
-                      :from $ [] 0 0
-                      :r0 1
-                      :delta-r 0
-                      :size 10
-                      :scale 10
-                      :layers 1
-                      :spiral? false
-                  quote $ Map Tag Dynamic
-                size $ ceil $ as-number (field state :size)
-                layers $ ceil $ as-number (field state :layers)
-                r0 $ as-number $ field state :r0
-                d-r $ as-number $ field state :delta-r
-                center $ as-number-list $ field state :from
+                  match (get states :data)
+                    (:some raw)
+                      or raw $ {}
+                        :from $ [] 0 0
+                        :r0 1
+                        :delta-r 0
+                        :size 10
+                        :scale 10
+                        :layers 1
+                        :spiral? false
+                    (:none)
+                      {}
+                        :from $ [] 0 0
+                        :r0 1
+                        :delta-r 0
+                        :size 10
+                        :scale 10
+                        :layers 1
+                        :spiral? false
+                  Map Tag Dynamic
+                size $ ceil $ as-number
+                  .unwrap $ get state :size
+                layers $ ceil $ as-number
+                  .unwrap $ get state :layers
+                r0 $ as-number $ .unwrap (get state :r0)
+                d-r $ as-number $ .unwrap (get state :delta-r)
+                center $ as-number-list $ .unwrap (get state :from)
                 center-x $ list-number-at center 0
                 center-y $ list-number-at center 1
-                center3 $ assert-type ([] center-x center-y 0)
-                  quote $ Tuple Number Number Number
+                center3 $ assert-type ([] center-x center-y 0) (Tuple Number Number Number)
                 th-step $ / (* 2 &PI) size
-                scale $ as-number $ field state :scale
-                spiral? $ as-bool $ field state :spiral?
+                scale $ as-number $ .unwrap (get state :scale)
+                spiral? $ as-bool $ .unwrap (get state :spiral?)
               group ({})
                 point-light $ {} (:color 0xffffff) (:intensity 10) (:distance 600)
                   :position $ [] 0 10 0
@@ -113,36 +124,57 @@
                     {} (:label |From) (:speed 2) (:color 0xffff55) (:show-text? true) (:fract-length 1) (:value center)
                       :position $ [] 0 10 0
                     fn (v d!)
+                      hint-fn $ Fn (List Number)
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :from v
                   comp-value
                     {} (:speed 2) (:color 0x5555ff) (:label |r0) (:show-text? true) (:fract-length 0) (:value r0)
                       :position $ [] 34 0 0
                     fn (v d!)
+                      hint-fn $ Fn Number
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :r0 v
                   comp-value
                     {} (:speed 4) (:color 0xaaaaff) (:label |size) (:show-text? true) (:fract-length 0) (:value size)
                       :position $ [] 40 0 0
                     fn (v d!)
+                      hint-fn $ Fn Number
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :size v
                   comp-value
                     {} (:speed 4) (:color 0x5555ff) (:label |scale) (:show-text? true) (:fract-length 0) (:value scale)
                       :position $ [] 44 0 0
                     fn (v d!)
+                      hint-fn $ Fn Number
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :scale v
                   comp-value
                     {} (:speed 4) (:color 0x55ffaa) (:label |delta-r) (:show-text? true) (:fract-length 0) (:value d-r)
                       :position $ [] 44 -4 0
                     fn (v d!)
+                      hint-fn $ Fn Number
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :delta-r v
                   comp-value
                     {} (:speed 4) (:color 0x5555ff) (:label |layers) (:show-text? true) (:fract-length 0) (:value layers)
                       :position $ [] 48 -4 0
                     fn (v d!)
+                      hint-fn $ Fn Number
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :layers v
                   comp-switch
                     {} (:color 0xaaffdd) (:label |spiral?) (:show-text? true) (:fract-length 0) (:value spiral?)
                       :position $ [] 48 8 0
                     fn (v d!)
+                      hint-fn $ Fn Bool
+                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        -> Unit
                       d! cursor $ assoc state :spiral? v
                 sphere $ {} (:radius 0.4) (:emissive 0xffffff) (:metalness 0.8) (:color 0x00ff00) (:emissiveIntensity 1) (:roughness 0)
                   :position $ [] 0 0 0
@@ -184,7 +216,7 @@
                                 * rail-r $ cos th
                                 * rail-r $ sin th
                                 , 0
-                              quote $ Tuple Number Number Number
+                              Tuple Number Number Number
                             h $ * r $ sin vertical-angle
                             w $ * r $ cos vertical-angle
                             th2 $ + th $ * 0.5 &PI
@@ -193,13 +225,13 @@
                                 * r $ cos th
                                 * r $ sin th
                                 , 0
-                              quote $ Tuple Number Number Number
+                              Tuple Number Number Number
                             vy $ assert-type
                               []
                                 * w $ cos th2
                                 * w $ sin th2
                                 , h
-                              quote $ Tuple Number Number Number
+                              Tuple Number Number Number
                           tube $ {} (:points-fn lowed-circle-fn)
                             :factor $ HopfCircle :center rail-center :vx vx :vy vy :scale scale
                             :radius 0.08
@@ -218,13 +250,6 @@
           :code $ quote $ def const-2PI (&* 2 &PI)
           :examples $ []
           :schema $ quote Number
-        'field $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn field (value key)
-            match (get value key)
-              (:some found) found
-              (:none) nil
-          :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Tag (-> Dynamic)
         'get-angle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-angle (x y)
             cond
@@ -294,7 +319,7 @@
           :schema $ quote $ Ref (Map Tag Dynamic)
         'MobileDetectHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait MobileDetectHost
-            .mobile? $ quote $ Fn app.main/MobileDetectHost (-> Dynamic)
+            .mobile? $ Fn app.main/MobileDetectHost $ -> Dynamic
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :mobile? |mobile
