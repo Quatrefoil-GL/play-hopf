@@ -14,10 +14,14 @@ the COS action verifies the uploaded files through their public URLs.
 
 COS Action 使用正式 v1.2.0，唯一上传校验为 `public-base-url` 内置 verify；不增加额外脚本。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟。原生产前缀与 rsync 路径不变，
-保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.34.2、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
+保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.37.0、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
 移除未使用的旧 alpha 包 `@quatrefoil/meshline`；实际发布模块已使用正式 `meshline`。
 
-### 本轮 0.34.2 候选迁移
+### Calcit 0.37.0 使用说明
+
+使用正式 Calcit 与 `@calcit/procs` 0.37.0、Quatrefoil 0.3.4 和 Touch Control 0.0.39。升级后重新安装依赖并构建。二维位置、数值控件和螺旋开关的回调已明确标注。生成 JS 验证了位置、半径和场景。实际 WebGL 画面尚未复验。
+
+### 历史：0.34.2 迁移
 
 使用者需配对 Calcit CLI/procs 0.34.2；HopfCircle 的 center/vx/vy 和圆周采样结果
 现在明确为三个 Number 的 Tuple，手工构造时需提供恰好三个分量。原三维公式、采样密度、
