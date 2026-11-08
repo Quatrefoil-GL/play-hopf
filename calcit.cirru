@@ -59,21 +59,24 @@
             :scale Number
           :examples $ []
           :schema $ quote StructDef
+        'HopfControlValue $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion HopfControlValue Number Bool (List Number)
+          :examples $ []
         'as-bool $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-bool (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Bool
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Bool)
+          :schema $ quote $ Fn app.comp.hopf/HopfControlValue (-> Bool)
         'as-number $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Number
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Number)
+          :schema $ quote $ Fn app.comp.hopf/HopfControlValue (-> Number)
         'as-number-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number-list (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value $ List Number
           :examples $ []
-          :schema $ quote $ Fn Dynamic
+          :schema $ quote $ Fn app.comp.hopf/HopfControlValue
             -> $ List Number
         'comp-hopf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-hopf (states)
@@ -101,7 +104,7 @@
                         :scale 10
                         :layers 1
                         :spiral? false
-                  Map Tag Dynamic
+                  Map Tag app.comp.hopf/HopfControlValue
                 size $ ceil $ as-number
                   .unwrap $ get state :size
                 layers $ ceil $ as-number
@@ -319,7 +322,7 @@
           :schema $ quote $ Ref (Map Tag Dynamic)
         'MobileDetectHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait MobileDetectHost
-            .mobile? $ Fn app.main/MobileDetectHost $ -> Dynamic
+            .mobile? $ Fn app.main/MobileDetectHost $ -> (JsNullish String)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :mobile? |mobile
@@ -360,7 +363,7 @@
           :code $ quote $ defn mobile? ()
             let
                 detector $ js-cast (new mobile-detect js/window.navigator.userAgent) 'app.main/MobileDetectHost
-              non-nil? $ detector .mobile?
+              js-present? $ detector .mobile?
           :examples $ []
           :schema $ quote $ Fn (-> Bool) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
