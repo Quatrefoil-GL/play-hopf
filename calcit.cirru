@@ -128,7 +128,7 @@
                       :position $ [] 0 10 0
                     fn (v d!)
                       hint-fn $ Fn (List Number)
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :from v
                   comp-value
@@ -136,7 +136,7 @@
                       :position $ [] 34 0 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :r0 v
                   comp-value
@@ -144,7 +144,7 @@
                       :position $ [] 40 0 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :size v
                   comp-value
@@ -152,7 +152,7 @@
                       :position $ [] 44 0 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :scale v
                   comp-value
@@ -160,7 +160,7 @@
                       :position $ [] 44 -4 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :delta-r v
                   comp-value
@@ -168,7 +168,7 @@
                       :position $ [] 48 -4 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :layers v
                   comp-switch
@@ -176,7 +176,7 @@
                       :position $ [] 48 8 0
                     fn (v d!)
                       hint-fn $ Fn Bool
-                        Fn (List Tag) (Map Tag Dynamic) (-> Unit)
+                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :spiral? v
                 sphere $ {} (:radius 0.4) (:emissive 0xffffff) (:metalness 0.8) (:color 0x00ff00) (:emissiveIntensity 1) (:roughness 0)
@@ -332,10 +332,18 @@
             if (list? op)
               recur :states $ [] op op-data
               let
-                  store $ updater @*store
-                    quatrefoil.util.core/require-decoded $ try-decode-map-as op 'Tag
-                    , op-data
-                ; js/console.log |Dispatch: op op-data store
+                  tag $ decode-map-as op Tag
+                  store $ if (= tag :states)
+                    let
+                        args $ decode-map-as op-data $ List Dynamic
+                        path $ decode-map-as
+                          .unwrap $ nth args 0
+                          List Tag
+                        state $ decode-map-as
+                          .unwrap $ nth args 1
+                          Map Tag app.updater/SceneStateValue
+                      updater @*store path state
+                    , @*store
                 reset! *store store
                 , &unit
           :examples $ []
@@ -399,14 +407,16 @@
             quatrefoil.dsl.object3d-dom :refer $ set-perspective-camera!
             js-ffi.browser :refer $ viewport-width viewport-height query-selector
     'app.updater $ %{} 'FileEntry
-      :defs $ {} $ 'updater
-        %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn updater (store op op-data)
-            match op
-              :states $ update-states store op-data
-              _ store
+      :defs $ {}
+        'SceneStateValue $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion SceneStateValue Tag app.comp.hopf/HopfControlValue
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Tag Dynamic
+          :schema $ quote UnionDef
+        'updater $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn updater (store path state)
+            update-states store $ [] path state
+          :examples $ []
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) (Map Tag app.updater/SceneStateValue)
             -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
