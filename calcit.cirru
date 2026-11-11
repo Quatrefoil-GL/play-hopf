@@ -337,14 +337,8 @@
                   tag $ decode-map-as op Tag
                   store $ if (= tag :states)
                     let
-                        args $ decode-map-as op-data $ List Dynamic
-                        path $ decode-map-as
-                          .unwrap $ nth args 0
-                          List Tag
-                        state $ decode-map-as
-                          .unwrap $ nth args 1
-                          Map Tag app.updater/SceneStateValue
-                      updater @*store path state
+                        args $ decode-map-as op-data $ Tuple (List Tag) (Map Tag app.updater/SceneStateValue)
+                      let[] (path state) args $ updater @*store path state
                     , @*store
                 reset! *store store
                 , &unit
