@@ -66,17 +66,17 @@
           :code $ quote $ defn as-bool (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Bool
           :examples $ []
-          :schema $ quote $ Fn app.comp.hopf/HopfControlValue (-> Bool)
+          :schema $ quote $ Fn HopfControlValue (-> Bool)
         'as-number $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Number
           :examples $ []
-          :schema $ quote $ Fn app.comp.hopf/HopfControlValue (-> Number)
+          :schema $ quote $ Fn HopfControlValue (-> Number)
         'as-number-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-number-list (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value $ List Number
           :examples $ []
-          :schema $ quote $ Fn app.comp.hopf/HopfControlValue
+          :schema $ quote $ Fn HopfControlValue
             -> $ List Number
         'comp-hopf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-hopf (states)
@@ -296,7 +296,7 @@
                   * cos-v $ list-number-at vx 1
                   * sin-v $ list-number-at vy 1
           :examples $ []
-          :schema $ quote $ Fn Number app.comp.hopf/HopfCircle
+          :schema $ quote $ Fn Number HopfCircle
             -> $ Tuple Number Number Number
         'math-atan $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn math-atan (x)
@@ -330,7 +330,9 @@
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op op-data)
             if (list? op)
-              recur :states $ [] op op-data
+              reset! *store $ updater @*store
+                decode-map-as op $ List Tag
+                decode-map-as op-data $ Map Tag app.updater/SceneStateValue
               let
                   tag $ decode-map-as op Tag
                   store $ if (= tag :states)
@@ -346,8 +348,9 @@
                     , @*store
                 reset! *store store
                 , &unit
+            , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn Action Payload (-> Unit) (:generics Action Payload) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!) (inject-tree-methods)
             set-perspective-camera! $ {} (:fov 40) (:near 0.1) (:far 100)
@@ -416,7 +419,7 @@
           :code $ quote $ defn updater (store path state)
             update-states store $ [] path state
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) (Map Tag app.updater/SceneStateValue)
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) (Map Tag SceneStateValue)
             -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater

@@ -14,12 +14,12 @@ the COS action verifies the uploaded files through their public URLs.
 
 COS Action 使用正式 v1.3.0，唯一上传校验为 `public-base-url` 内置 verify；不增加额外脚本。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟。原生产前缀与 rsync 路径不变，
-保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.40.0、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
+保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.41.0、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
 移除未使用的旧 alpha 包 `@quatrefoil/meshline`；实际发布模块已使用正式 `meshline`。
 
-### Calcit 0.40.0 使用说明
+### Calcit 0.41.0 使用说明
 
-使用正式 Calcit 与 `@calcit/procs` 0.40.0、Quatrefoil 0.3.4 和 Touch Control 0.0.39。升级后重新安装依赖并构建。控件状态以 `HopfControlValue` union 表达数字、布尔值和数字列表。移动设备检测按可空字符串处理。
+使用正式 Calcit 与 `@calcit/procs` 0.41.0、Quatrefoil 0.3.4 和 Touch Control 0.0.39。升级后重新安装依赖并构建。控件状态以 `HopfControlValue` union 表达数字、布尔值和数字列表。移动设备检测按可空字符串处理。
 
 生成 JS 验证了位置和半径控件。回环 Chrome 验证了实际 WebGL 首帧，以及桌面和手机标识的检测结果。
 
