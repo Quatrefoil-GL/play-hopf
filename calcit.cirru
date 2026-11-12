@@ -62,6 +62,7 @@
         'HopfControlValue $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defunion HopfControlValue Number Bool (List Number)
           :examples $ []
+          :schema $ quote UnionDef
         'as-bool $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn as-bool (value)
             quatrefoil.util.core/require-decoded $ try-decode-map-as value 'Bool
@@ -128,7 +129,7 @@
                       :position $ [] 0 10 0
                     fn (v d!)
                       hint-fn $ Fn (List Number)
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :from v
                   comp-value
@@ -136,7 +137,7 @@
                       :position $ [] 34 0 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :r0 v
                   comp-value
@@ -144,7 +145,7 @@
                       :position $ [] 40 0 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :size v
                   comp-value
@@ -152,7 +153,7 @@
                       :position $ [] 44 0 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :scale v
                   comp-value
@@ -160,7 +161,7 @@
                       :position $ [] 44 -4 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :delta-r v
                   comp-value
@@ -168,7 +169,7 @@
                       :position $ [] 48 -4 0
                     fn (v d!)
                       hint-fn $ Fn Number
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :layers v
                   comp-switch
@@ -176,7 +177,7 @@
                       :position $ [] 48 8 0
                     fn (v d!)
                       hint-fn $ Fn Bool
-                        Fn (List Tag) (Map Tag app.comp.hopf/HopfControlValue) (-> Unit)
+                        Fn (List Tag) (Map Tag HopfControlValue) (-> Unit)
                         -> Unit
                       d! cursor $ assoc state :spiral? v
                 sphere $ {} (:radius 0.4) (:emissive 0xffffff) (:metalness 0.8) (:color 0x00ff00) (:emissiveIntensity 1) (:roughness 0)
