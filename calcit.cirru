@@ -15,17 +15,16 @@
             let
                 states $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   .unwrap $ get store :states
-                  Map Tag Dynamic
+                  Map Tag app.updater/SceneStateNode
                 cursor $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   .unwrap $ get states :cursor
                   List Tag
                 state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   match (get states :data)
-                    (:some raw)
-                      either raw $ {} $ :tab :portal
+                    (:some raw) raw
                     (:none)
                       {} $ :tab :portal
-                  Map Tag Dynamic
+                  Map Tag app.updater/SceneStateNode
                 tab $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   .unwrap $ get state :tab
                   , 'Tag
@@ -36,13 +35,13 @@
                     :scale $ [] scaled scaled scaled
                     :position $ [] -0.4 1 -0.4
                   ambient-light $ {} $ :color 0x666666
-                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf) (Map Tag Dynamic)
+                  comp-hopf $ quatrefoil.util.core/require-decoded $ try-decode-map-as (>> states :hopf) (Map Tag app.updater/SceneStateNode)
                   point-light $ {} (:color 0xffffff) (:intensity 1.4) (:distance 200)
                     :position $ [] 20 40 50
                   point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
                     :position $ [] 0 60 0
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> quatrefoil.schema/Component)
+          :schema $ quote $ Fn (Map Tag app.updater/SceneStateNode) (-> quatrefoil.schema/Component)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -249,7 +248,7 @@
                               :opacity 1
                               :transparent true
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> quatrefoil.schema/Component)
+          :schema $ quote $ Fn (Map Tag app.updater/SceneStateNode) (-> quatrefoil.schema/Component)
         'const-2PI $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def const-2PI (&* 2 &PI)
           :examples $ []
@@ -315,12 +314,10 @@
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store
-            {}
-              :tasks $ {} $ 100
-                {} (:id 100) (:text "|Initial task") (:done? false)
-              :states $ {} $ :cursor ([])
+            {} $ :states $ {}
+              :cursor $ []
           :examples $ []
-          :schema $ quote $ Ref (Map Tag Dynamic)
+          :schema $ quote $ Ref (Map Tag app.updater/SceneStateNode)
         'MobileDetectHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait MobileDetectHost
             .mobile? $ Fn app.main/MobileDetectHost $ -> (JsNullish String)
@@ -345,7 +342,7 @@
                 , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Action Payload (-> Unit) (:generics Action Payload) (:features :js-ffi)
+          :schema $ quote $ Fn Action Payload (-> Unit) (:generics Action Payload) (:features :js-ffi :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!) (inject-tree-methods)
             set-perspective-camera! $ {} (:fov 40) (:near 0.1) (:far 100)
@@ -364,7 +361,7 @@
             init-controls!
             println |App-started!
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'mobile? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mobile? ()
             let
@@ -384,12 +381,12 @@
                 println |Code-updated.
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! () (; println "|Render app:")
             render-canvas! (comp-container @*store) dispatch!
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -406,16 +403,41 @@
             js-ffi.browser :refer $ viewport-width viewport-height query-selector
     'app.updater $ %{} 'FileEntry
       :defs $ {}
+        'SceneStateAtom $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion SceneStateAtom Tag Number
+          :examples $ []
+          :schema $ quote UnionDef
+        'SceneStateNode $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion SceneStateNode Tag Number Bool (List SceneStateAtom) (Map Tag SceneStateNode)
+          :examples $ []
+          :schema $ quote UnionDef
         'SceneStateValue $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defunion SceneStateValue Tag app.comp.hopf/HopfControlValue
           :examples $ []
           :schema $ quote UnionDef
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store path state)
-            update-states store $ [] path state
+            decode-map-as
+              update-states store $ [] path state
+              Map Tag SceneStateNode
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) (Map Tag SceneStateValue)
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn (Map Tag SceneStateNode) (List Tag) (Map Tag SceneStateValue)
+            -> $ Map Tag SceneStateNode
+          :tests $ [] $ %{} 'TestEntry (:name |typed-nested-scene-state)
+            :code $ quote $ let
+                store $ {} $ :states
+                  {} $ :cursor $ []
+                state $ {}
+                  :from $ [] 1 2
+                  :spiral? true
+                  :layers 3
+                next $ updater store ([] :hopf) state
+                expected $ {} $ :states
+                  {}
+                    :cursor $ []
+                    :hopf $ {} $ :data state
+              assert= expected next
+            :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ quatrefoil.cursor :refer $ update-states
