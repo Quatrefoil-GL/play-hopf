@@ -1,8 +1,8 @@
 
-{} (:calcit-version |0.44.0)
+{} (:calcit-version |0.45.1)
   :version |0.0.6
-  :dependencies $ {} (|Quatrefoil-GL/quatrefoil |0.3.7)
-    |Triadica/touch-control |0.0.43
-    |calcit-lang/js-ffi |0.2.19
-    |calcit-lang/quaternion |0.2.26
-    |mvc-works/pointed-prompt |0.0.30
+  :dependencies $ {} (|Quatrefoil-GL/quatrefoil |0.3.9)
+    |Triadica/touch-control |0.0.45
+    |calcit-lang/js-ffi |0.2.24
+    |calcit-lang/quaternion |0.2.27
+    |mvc-works/pointed-prompt |0.0.32

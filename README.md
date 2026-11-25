@@ -14,14 +14,14 @@ the COS action verifies the uploaded files through their public URLs.
 
 COS Action 使用正式 v1.3.0，唯一上传校验为 `public-base-url` 内置 verify；不增加额外脚本。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟。原生产前缀与 rsync 路径不变，
-保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.44.0、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
+保留 strict Caps 和类型门禁；开发环境使用正式 Calcit/procs 0.45.1、Caps 0.1.1、Node 24 和 Yarn 4.18.0。
 移除未使用的旧 alpha 包 `@quatrefoil/meshline`；实际发布模块已使用正式 `meshline`。
 
-### Calcit 0.44.0 使用说明
+### Calcit 0.45.1 使用说明
 
-使用正式 Calcit 与 `@calcit/procs` 0.44.0、Quatrefoil 0.3.7 和 Touch Control 0.0.43。升级后重新安装依赖并构建。控件状态以 `HopfControlValue` union 表达数字、布尔值和数字列表。移动设备检测按可空字符串处理。
+使用正式 Calcit 与 `@calcit/procs` 0.45.1、Quatrefoil 0.3.9 和 Touch Control 0.0.45。升级后重新安装依赖并构建。控件状态以 `HopfControlValue` union 表达数字、布尔值和数字列表。移动设备检测按可空字符串处理。
 
-0.42.1 迁移时曾以生成 JS 验证位置和半径控件，并在回环 Chrome 验证 WebGL 首帧与桌面和手机标识；0.44.0 升级后仍需重新验收这些交互。
+0.45.1 的严格检查覆盖 252 个定义，前端构建通过；状态中缺失或为 false 时沿用默认值，其他已声明的 union 成员继续进入原解码流程。项目没有附着单元测试。本轮尚未复验 WebGL 绘制、控件和物理设备；旧可见性问题 #64 仍需持续观察。
 
 ### 历史：0.34.2 迁移
 
