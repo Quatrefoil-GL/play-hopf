@@ -87,14 +87,17 @@
                 state $ quatrefoil.util.core/require-decoded $ try-decode-map-as
                   match (get states :data)
                     (:some raw)
-                      or raw $ {}
-                        :from $ [] 0 0
-                        :r0 1
-                        :delta-r 0
-                        :size 10
-                        :scale 10
-                        :layers 1
-                        :spiral? false
+                      match raw
+                        (Bool value)
+                          if value raw $ {}
+                            :from $ [] 0 0
+                            :r0 1
+                            :delta-r 0
+                            :size 10
+                            :scale 10
+                            :layers 1
+                            :spiral? false
+                        _ raw
                     (:none)
                       {}
                         :from $ [] 0 0
